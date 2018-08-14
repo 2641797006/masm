@@ -1,0 +1,263 @@
+"asmbase.asm" 汇编子程序库使用说明
+# asmbase版本: 2018.06.25.0
+# 持续更新中...
+# 如发现错误, 或者有所建议, 您可以通过邮箱 " yongxxone@gmail.com " 联系我们
+
+PUBLIC center, cint, cls, couta, coutax, crlf, digit(__digit,digit__), dhex, getint, gets, sgets, hexcin, hhex, __hex__, hexd, hexdx, hexh, letter(__letter,letter__), lows, match, sort, strlen, strlet, strwd, ups, zcls, zgcint, zgetint
+# for coder: 03,00,02,0,01,1,13,15,19,2,21,22,23,24,3,30,31,4,5,6,7,8,81,82,9,93,94,95
+
+##############################################
+; 数字/数组输入(-32768~32767)  $ cint
+; 数字/数组输出(-32768~32767)  $ coutax
+; 数字/数组输出  $ couta
+; 16进制数字/数组输入(0~ffff)  $ hexcin
+
+; 从键盘获取十进制ascii码字符串  $ getint
+; 数字扫描  扫描到数字/非数字返回  $ __digit / digit__
+; 数字/大写字母扫描  $ __hex / hex__
+; 十进制ascii码字符串 转 数值  $ dhex
+; 16进制ascii码字符串 转 数值  $ hhex
+; 数值 转 十进制ascii码(-32768~32767)  $ hexdx
+; 数组排序(改变原数组)  $ sort
+
+; 数值 转 十进制ascii码(0~65535)  $ hexd
+; 数值 转 十六进制ascii码(0~ffff)  $ hexh
+
+; 字符串扫描  扫描到字母/非字母返回  $ __letter / letter__
+; 字符串输入  $ gets
+; 字符串输入(回显'*')  $ sgets
+; 字符串居中输出  $ center
+; 字符串转化为全小写形式  $ lows
+; 字符串转化为全大写形式  $ ups
+
+; 查找字符串中 '特定单词' 的数量 (区分大小写,以非字母为界,'$'结尾)  $ match
+; 查找字符串中 '特定字符' 的数量 (区分大小写) !#(以'$'结束)  $ strlet
+; 获取字符串长度(不计$)  $ strlen
+; 统计字符串中单词总数  ;;;  以非字母为界  $ strwd
+
+; 回车换行  $ crlf
+
+; 清空屏幕  & cls
+; 自定义初始化屏幕  $ zcls
+; 自定义输入框输入数字/数组(-32768~32767)  $ zgcint && zgetint
+##############################################
+
+
+#******************** PUBLIC center *********************************
+; 字符串居中输出  单行80列  string_length<=80个字符
+; push string  ;;;  string db 'This is a string ... ... $'  ;;;  字符串地址
+; push row  ;;;  row db ?  ;;;  row=行号, 一般 0<=row && row<=24
+; push color  ;;;  mov bx,color  ;;;  bh=页号 bl=属性
+
+
+#******************** PUBLIC cint *********************************
+; 输入 n 个数字(-32768~32767)
+; push array  ;;;  array dw 2bh dup(?)  ;;;  输入的数字将存入array中(-32768~32767)
+; push n  ;;;  n = 2bh  ;;;  n = 要输入的数字个数
+; push buffer  ;;;  buffer db 416h dup(?)  ;;;  可读写存储空间(默认大小: 416h byte, 其他大小需修改 # buffer 行)
+; call cint
+
+
+#******************** PUBLIC cls *********************************
+; #Clear Screen
+; call cls
+
+
+#******************** PUBLIC couta *******************************
+; 数组输出
+; push buffer  ;;;  buffer db 6 dup(?)  ;;;  请求 6 byte 可读写数据空间
+; push array  ;;;  array dw 1, 2, ... , 99  ;;;  数组地址
+; push 99  ;;;  99=array元素个数
+; call couta
+
+
+#******************** PUBLIC coutax *********************************
+; 带符号数组输出(-32768~32767)
+; push buffer  ;;;  buffer db 7 dup(?)  ;;;  请求 7 byte 可读写数据空间
+; push array  ;;;  array dw 1, 2, ... , 99  ;;;  数组地址
+; push 99  ;;;  99=array元素个数
+; call coutax
+
+
+#******************** PUBLIC crlf *******************************
+; 回车换行
+; call crlf
+
+
+#******************** PUBLIC __digit, digit__ ********************
+__digit:
+;------------------------------------------------------
+; ;;;  si = string读取指针
+; call __digit  ;;;  扫描到数字则返回([si]=数字 || [si]='$')
+;------------------------------------------------------
+digit__:
+;------------------------------------------------------
+; ;;;  si = string读取指针
+; call digit__  ;;;  扫描到非数字则返回([si]=非数字)
+;------------------------------------------------------
+
+
+#******************** PUBLIC dhex *******************************
+; 十进制输入
+; ;;;  IF ( decs='32765' ): THEN { [di]='3',si=decs+5 }  ;;;  预先设置 di,si
+; push array[i]  ;;;  array dw 2bh dup(?)  ;;;  array元素地址(DW)
+; call dhex
+
+
+#******************** PUBLIC getint *******************************
+; 从键盘读取输入的数字字符串
+; ;;;  si = buffer地址  ;;;  buffer db 416h dup(?)  ;;;  输入的字符将存入 buffer 中
+; push 416h  ;;;  416h = buffer存储空间大小
+; call getint
+
+
+#******************** PUBLIC gets *******************************
+; 字符串输入  ;;;  支持 '20h~126h'
+; push string  ;;;  string db 456h dup(?)  ;;;  字符串存储地址
+; push 456h  ;;;  字符串存储空间string的长度
+; call gets
+
+
+#******************** PUBLIC sgets *******************************
+; 字符串输入  ;;;  支持 '20h~126h'  不显示输入内容, 转而回显'*'
+; push string  ;;;  string db 416h dup(?)  ;;;  字符串存储地址
+; push 416h  ;;;  字符串存储空间string的长度
+; call sgets
+
+
+#******************** PUBLIC hexcin ******************************
+; 输入 n 个16进制数(0~ffff)
+; push array  ;;;  array dw 2bh dup(?)  ;;;  输入的数字将存入array中
+; push n  ;;;  n = 2bh  ;;;  n = 要输入的数字个数
+; push buffer  ;;;  buffer db 416h dup(?)  ;;;  可读写存储空间(默认大小: 416h byte, 其他大小需修改 # buffer 行)
+; call hexcin
+
+
+#******************** PUBLIC hhex ********************************
+; 十六进制输入
+; ;;;  IF ( decs='2f6e' ): THEN { [di]='2',si=decs+4 }  ;;;  预先设置 di,si
+; push array[i]  ;;;  array dw 2bh dup(?)  ;;;  array元素地址(DW)
+; call hhex
+
+
+#******************** PUBLIC __hex, hex__ *************************
+__hex:
+;------------------------------------------------------
+; ;;;  si = string读取指针
+; call __hex  ;;;  扫描到(大写字母/数字)则返回([si]=(大写字母/数字) || [si]='$')
+;------------------------------------------------------
+hex__:
+;------------------------------------------------------
+; ;;;  si = string读取指针
+; call hex__  ;;;  扫描到非(大写字母/数字)则返回([si]=非(大写字母/数字))
+;------------------------------------------------------
+
+
+#******************** PUBLIC hexd *******************************
+;单字长无符号十六进制数转十进制
+;push hex  ;;;  hex=1234  ;;;  hex为需要转化的十六进制'数'(dw)
+;push string  ;;;  string db 6 dup(?)  ;;;  结果将会以字符串形式存入string中, 如string='123$', string='34567$'
+;call hexd
+
+
+#******************** PUBLIC hexdx *******************************
+; 带符号数(dw)转字符串 : ffffh -> '-1$'
+; push hex  ;;;  hex=1234  ;;;  hex为需要转化的十六进制'数'(dw)
+; push string  ;;;  string db 7 dup(?)  ;;;  结果将会以字符串形式存入string中, 如string='123$', string='34567$'
+; call hexdx
+
+
+# ******************* PUBLIC hexh *******************************
+; 十六进制输出
+; push hex  ;;;  hex = 89abh  ;;;  待输出值(dw)
+; push string  ;;;  string db 5 dup(?)  ;;;  结果将会以字符串形式存入string中, 如string='2b$', string='45df$'
+; call hexh
+
+
+#******************** PUBLIC __letter, letter__ ********************
+__letter:
+;------------------------------------------------------
+; ;;;  si = string读取指针
+; call __letter  ;;;  扫描到字母则返回([si]=字母 || [si]='$')
+;------------------------------------------------------
+letter__:
+;------------------------------------------------------
+; ;;;  si = string读取指针
+; call letter__  ;;;  扫描到非字母则返回([si]=非字母)
+;------------------------------------------------------
+
+
+#******************** PUBLIC lows *******************************
+; 字符串转化为全小写形式
+; push string  ;;;  string db 'This is a string ... ... $'  ;;;  待处理字符串地址(以$结束)
+; call lows
+
+
+#******************** PUBLIC match *******************************
+; 统计单词在字符串中出现的次数  (!! 区分大小写 !!) 以非字母为界
+; push string  ;;;  string db 'This is a string ... ... $'  ;;;  字符串地址(以$结束)
+; push cmd  ;;;  cmd db 'this$'  ;;;  要匹配的单词(以$结束)
+; push n  ;;;  n dw ?  ;;;  统计结果将存入 n 中
+; call match
+
+
+#******************** PUBLIC sort *******************************
+; 数组排序(改变原数组)
+; push array  ;;;  array dw 1, 2, ... , 99  ;;;  数组地址
+; push 99  ;;;  99=array元素个数
+; call sort
+
+
+#******************** PUBLIC strlen *******************************
+; 获取字符串长度(不计$)
+; push string  ;;;  string db 'This is a string ... ... $'  ;;;  字符串地址
+; ;;;  执行strlen后: ax = string长度
+; call strlen
+
+
+#******************** PUBLIC strlet *******************************
+; 查找字符串中 '特定字符' 的数量 (区分大小写) !#(以'$'结束)
+; push string  ;;;  string db 'This is a string ... ... $'  ;;;  待查找字符串地址
+; push char  ;;;  char = 's' = 0073h  ;;;  目标字符 (堆栈dw)
+; push n  ;;;  n dw ?  ;;;  结果将存入 n 中
+; call strlet
+
+
+#******************** PUBLIC strwd *******************************
+; 统计字符串中单词数量  ;;;  以非字母为界
+; push string  ;;;  string db 'This is a string ... ... $'  ;;;  目标字符串地址(以$结束)
+; push num  ;;;  num dw ?  ;;;  统计结果将存入num中
+; call strwd
+
+
+#******************** PUBLIC ups *******************************
+; 字符串转化为全大写形式
+; push string  ;;;  string db 'This is a string ... ... $'  ;;;  待处理字符串地址(以$结束)
+; call ups
+
+
+#******************** PUBLIC zcls *******************************
+; 自定义  clear screen
+; push \bx  ;;;  该值将会给bx
+; push \cx  ;;;  该值将会给cx
+; push \dx  ;;;  该值将会给dx
+; call zcls
+
+
+#******************** PUBLIC zgcint *******************************
+; 输入 n 个数字(-32768~32767)
+; push (x0,y0)
+; push (x1,y1)
+; push array  ;;;  array dw 2bh dup(?)  ;;;  输入的数字将存入array中(-32768~32767)
+; push n  ;;;  n = 2bh  ;;;  n = 要输入的数字个数
+; push buffer  ;;;  buffer db 416h dup(?)  ;;;  可读写存储空间(默认大小: 416h byte, 其他大小需修改 # buffer 行)
+; call zgcint
+
+
+#******************** PUBLIC zgetint *******************************
+; 从键盘读取输入的数字字符串
+; push (x0,y0)
+; push (x1,y1)
+; ;;;  si = buffer地址  ;;;  buffer db 416h dup(?)  ;;;  输入的字符将存入 buffer 中
+; push 416h  ;;;  416h = buffer存储空间大小
+; call zgetint
